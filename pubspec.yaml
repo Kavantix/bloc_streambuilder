@@ -1,6 +1,6 @@
 name: bloc_streambuilder
 description: A stream builder that uses the inital value of the bloc_stream.
-author: Kavantix (Pieter van Loon)
+author: Kavantix <github@pietervanloon.com>
 homepage: https://github.com/Kavantix/bloc_streambuilder
 
 # The following defines the version and build number for your application.
