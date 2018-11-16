@@ -1,5 +1,7 @@
 name: bloc_streambuilder
 description: A stream builder that uses the inital value of the bloc_stream.
+author: Kavantix (Pieter van Loon)
+homepage: https://github.com/Kavantix/bloc_streambuilder
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -26,4 +28,4 @@ dev_dependencies:
 
 # The following section is specific to Flutter.
 flutter:
-  
+
