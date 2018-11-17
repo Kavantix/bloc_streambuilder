@@ -1,3 +1,6 @@
+## [0.3.2] - 17 November 2018
+Added a readme for the example
+
 ## [0.3.1] - 17 November 2018
 Updated the changelog
 
