@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:bloc_streambuilder/bloc_streambuilder.dart';
-import 'package:counter/bloc.dart';
+import './bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
 void main() => runApp(new MyApp());
 
