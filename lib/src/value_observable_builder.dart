@@ -1,11 +1,11 @@
-import 'package:bloc_streambuilder/bloc_streambuilder.dart';
 import 'package:flutter/widgets.dart';
+import 'package:rxdart/rxdart.dart';
 
-class BlocStreamBuilder<T> extends StatelessWidget {
-  final BlocStream<T> stream;
+class ValueObservableBuilder<T> extends StatelessWidget {
+  final ValueObservable<T> stream;
   final AsyncWidgetBuilder<T> builder;
 
-  const BlocStreamBuilder({
+  const ValueObservableBuilder({
     Key key,
     @required this.builder,
     @required this.stream,
@@ -15,7 +15,7 @@ class BlocStreamBuilder<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<T>(
       initialData: stream.value,
-      stream: stream.stream,
+      stream: stream,
       builder: (context, snapshot) {
         assert(builder != null && stream != null);
         if (snapshot.connectionState == ConnectionState.waiting &&

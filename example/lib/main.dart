@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc_streambuilder/bloc_streambuilder.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 
 void main() => runApp(new MyApp());
 
@@ -16,8 +17,10 @@ class MyApp extends StatefulWidget {
 enum CounterPageButton { add, reset }
 
 class Bloc {
-  final _counterController = BlocStreamController<int>(seedValue: 0);
-  BlocStream<int> get counter => _counterController;
+  final _counterBehaviorSubject = BehaviorSubject<int>(seedValue: 0);
+  final _counterValueSubject = ValueSubject<int>(seedValue: 0);
+  ValueObservable<int> get counterBehavior => _counterBehaviorSubject;
+  ValueObservable<int> get counterValue => _counterValueSubject;
 
   final _buttonPressController = StreamController<CounterPageButton>();
   Sink<CounterPageButton> get buttonPress => _buttonPressController;
@@ -29,17 +32,20 @@ class Bloc {
   void _pressedButton(CounterPageButton button) {
     switch (button) {
       case CounterPageButton.add:
-        _counterController.value += 1;
+        _counterBehaviorSubject.value += 1;
+        _counterValueSubject.value += 1;
         break;
       case CounterPageButton.reset:
-        _counterController.value = 0;
+        _counterBehaviorSubject.value = 0;
+        _counterValueSubject.value = 0;
         break;
     }
   }
 
   void dispose() {
     _buttonPressController.close();
-    _counterController.close();
+    _counterBehaviorSubject.close();
+    _counterValueSubject.close();
   }
 }
 
@@ -124,16 +130,29 @@ class MyHomePage extends StatelessWidget {
             new Text(
               'You have pushed the button this many times:',
             ),
-            BlocStreamBuilder(
+            ValueObservableBuilder(
               builder: (context, snapshot) {
                 print(
-                    "Build called with data: ${snapshot.data}, connectionState: ${snapshot.connectionState}");
+                    "Value build called with data: ${snapshot.data}, connectionState: ${snapshot.connectionState}");
                 return new Text(
                   '${snapshot.data}',
                   style: Theme.of(context).textTheme.display1,
                 );
               },
-              stream: bloc.counter,
+              stream: bloc.counterValue,
+            ),
+            SizedBox(height: 20.0),
+            StreamBuilder(
+              initialData: bloc.counterBehavior.value,
+              builder: (context, snapshot) {
+                print(
+                    "Behavior build called with data: ${snapshot.data}, connectionState: ${snapshot.connectionState}");
+                return new Text(
+                  '${snapshot.data}',
+                  style: Theme.of(context).textTheme.display1,
+                );
+              },
+              stream: bloc.counterBehavior,
             ),
           ],
         ),
