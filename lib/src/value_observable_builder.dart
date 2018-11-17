@@ -1,6 +1,29 @@
 import 'package:flutter/widgets.dart';
 import 'package:rxdart/rxdart.dart';
 
+///
+/// A special StreamBuilder that takes an ValueObservable as stream
+///
+/// It makes sure that the first time the `builder` is called it will have data
+/// and get an active ConnectionState
+///
+/// ###Example
+///
+///     ValueObservable<int> stream = ValueSubject(seedValue: 0);
+///
+///     ValueObservableBuilder(
+///       builder: (context, snapshot) { // Only called once and immediately with data if the stream has data
+///
+///         print(
+///             "Build called with data: ${snapshot.data}, connectionState: ${snapshot.connectionState}"
+///         ); // First time it prints "Build called with data: 0, connectionState: ConnectionState.active"
+///
+///         return new Text('${snapshot.data}');
+///       },
+///       stream: stream,
+///     )
+///
+///
 class ValueObservableBuilder<T> extends StatelessWidget {
   final ValueObservable<T> stream;
   final AsyncWidgetBuilder<T> builder;
