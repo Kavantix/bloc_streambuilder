@@ -1,16 +1,16 @@
 import 'dart:async';
+import 'package:bloc_streambuilder/bloc_streambuilder.dart';
 
-import 'package:bloc_streambuilder/bloc_sink.dart';
-import 'package:bloc_streambuilder/bloc_stream.dart';
+class BlocStreamController<T> implements StreamController<T>, BlocStream<T> {
+  final bool closeOnError;
 
-class BlocStreamController<T> implements StreamController<T> {
   StreamController<T> _controller;
 
-  BlocStream<T> _stream;
-  BlocStream<T> get stream => _stream;
+  BlocStream<T> get blocStream => this;
 
-  BlocSink<T> _sink;
-  BlocSink<T> get sink => _sink;
+  Stream<T> get stream => _controller.stream;
+
+  StreamSink<T> get sink => this;
 
   T _latestValue;
   T get value => _latestValue;
@@ -21,14 +21,13 @@ class BlocStreamController<T> implements StreamController<T> {
     void onListen(),
     onCancel(),
     bool sync: false,
+    this.closeOnError: false,
   }) {
     _controller = StreamController.broadcast(
       onListen: onListen,
       onCancel: onCancel,
       sync: sync,
     );
-    _stream = BlocStream(() => _controller.stream, () => value);
-    _sink = BlocSink(() => this);
     _latestValue = seedValue;
   }
 
@@ -40,8 +39,10 @@ class BlocStreamController<T> implements StreamController<T> {
 
   @override
   void addError(Object error, [StackTrace stackTrace]) {
-    _latestValue = null;
     _controller.addError(error, stackTrace);
+    if (closeOnError) {
+      close();
+    }
   }
 
   @override
@@ -66,10 +67,13 @@ class BlocStreamController<T> implements StreamController<T> {
   bool get isPaused => _controller.isPaused;
 
   @override
-  ControllerCancelCallback onCancel;
+  ControllerCancelCallback get onCancel => _controller.onCancel;
+  set onCancel(ControllerCancelCallback callback) =>
+      _controller.onCancel = callback;
 
   @override
-  ControllerCallback onListen;
+  ControllerCallback get onListen => _controller.onListen;
+  set onListen(ControllerCallback callback) => _controller.onListen = callback;
 
   @override
   ControllerCallback onPause;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_streambuilder/bloc_streambuilder.dart';
 import 'package:flutter/material.dart';
 
@@ -11,15 +13,32 @@ class MyApp extends StatefulWidget {
   }
 }
 
+enum CounterPageButton { add, reset }
+
 class Bloc {
-  BlocStream<int> get counter => _counterController.stream;
-  BlocSink<int> get setCounter => _counterController.sink;
+  final _counterController = BlocStreamController<int>(seedValue: 0);
+  BlocStream<int> get counter => _counterController;
 
-  void incrementCounter() => _counterController.value++;
+  final _buttonPressController = StreamController<CounterPageButton>();
+  Sink<CounterPageButton> get buttonPress => _buttonPressController;
 
-  var _counterController = BlocStreamController<int>(seedValue: 0);
+  Bloc() {
+    _buttonPressController.stream.listen(_pressedButton);
+  }
+
+  void _pressedButton(CounterPageButton button) {
+    switch (button) {
+      case CounterPageButton.add:
+        _counterController.value += 1;
+        break;
+      case CounterPageButton.reset:
+        _counterController.value = 0;
+        break;
+    }
+  }
 
   void dispose() {
+    _buttonPressController.close();
     _counterController.close();
   }
 }
@@ -37,7 +56,7 @@ class BlocProvider extends InheritedWidget {
   }
 
   static Bloc of(BuildContext context) {
-    return (context.ancestorWidgetOfExactType(BlocProvider) as BlocProvider)
+    return (context.inheritFromWidgetOfExactType(BlocProvider) as BlocProvider)
         ?.bloc;
   }
 }
@@ -95,7 +114,7 @@ class MyHomePage extends StatelessWidget {
         title: new Text(title),
         leading: IconButton(
           icon: Icon(Icons.restore_page),
-          onPressed: () => bloc.setCounter.setValue(0),
+          onPressed: () => bloc.buttonPress.add(CounterPageButton.reset),
         ),
       ),
       body: new Center(
@@ -107,6 +126,8 @@ class MyHomePage extends StatelessWidget {
             ),
             BlocStreamBuilder(
               builder: (context, snapshot) {
+                print(
+                    "Build called with data: ${snapshot.data}, connectionState: ${snapshot.connectionState}");
                 return new Text(
                   '${snapshot.data}',
                   style: Theme.of(context).textTheme.display1,
@@ -118,7 +139,7 @@ class MyHomePage extends StatelessWidget {
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: bloc.incrementCounter,
+        onPressed: () => bloc.buttonPress.add(CounterPageButton.add),
         tooltip: 'Increment',
         child: new Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
