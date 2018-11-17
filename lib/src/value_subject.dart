@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:rxdart/src/observables/observable.dart';
-import 'package:rxdart/src/observables/value_observable.dart';
-import 'package:rxdart/src/subjects/subject.dart';
+import 'package:rxdart/rxdart.dart';
 
 /// A special StreamController that captures the latest item that has been
 /// added to the controller, but unlike BehaviorSubject does not emit that as the first item.
@@ -27,11 +25,9 @@ import 'package:rxdart/src/subjects/subject.dart';
 ///
 ///     subject.add(3); // prints 3;
 ///
+///     print(subject.value); // prints 3;
+///
 ///     subject.stream.listen(print); // prints nothing
-///x
-///     print(subject.value); // prints 3;
-///     print(subject.value); // prints 3;
-///     print(subject.value); // prints 3;
 ///
 /// ### Example with seed value
 ///
@@ -54,6 +50,8 @@ class ValueSubject<T> extends Subject<T> implements ValueObservable<T> {
     void onListen(),
     void onCancel(),
     bool sync: false,
+    bool distinct: false,
+    bool equals(T previous, T next),
   }) {
     // ignore: close_sinks
     final controller = new StreamController<T>.broadcast(
@@ -62,9 +60,13 @@ class ValueSubject<T> extends Subject<T> implements ValueObservable<T> {
       sync: sync,
     );
 
+    final observable = distinct
+        ? new Observable(controller.stream.distinct(equals))
+        : new Observable(controller.stream);
+
     return new ValueSubject<T>._(
       controller,
-      new Observable(controller.stream),
+      observable,
       seedValue,
     );
   }

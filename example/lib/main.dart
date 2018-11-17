@@ -18,7 +18,7 @@ enum CounterPageButton { add, reset }
 
 class Bloc {
   final _counterBehaviorSubject = BehaviorSubject<int>(seedValue: 0);
-  final _counterValueSubject = ValueSubject<int>(seedValue: 0);
+  final _counterValueSubject = ValueSubject<int>(seedValue: 0, distinct: true);
   ValueObservable<int> get counterBehavior => _counterBehaviorSubject;
   ValueObservable<int> get counterValue => _counterValueSubject;
 
