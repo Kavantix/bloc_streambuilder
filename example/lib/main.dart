@@ -1,69 +1,16 @@
 import 'dart:async';
 
 import 'package:bloc_streambuilder/bloc_streambuilder.dart';
+import 'package:counter/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatefulWidget {
-  // This widget is the root of your application.
   @override
   MyAppState createState() {
     return new MyAppState();
-  }
-}
-
-enum CounterPageButton { add, reset }
-
-class Bloc {
-  final _counterBehaviorSubject = BehaviorSubject<int>(seedValue: 0);
-  final _counterValueSubject = ValueSubject<int>(seedValue: 0, distinct: true);
-  ValueObservable<int> get counterBehavior => _counterBehaviorSubject;
-  ValueObservable<int> get counterValue => _counterValueSubject;
-
-  final _buttonPressController = StreamController<CounterPageButton>();
-  Sink<CounterPageButton> get buttonPress => _buttonPressController;
-
-  Bloc() {
-    _buttonPressController.stream.listen(_pressedButton);
-  }
-
-  void _pressedButton(CounterPageButton button) {
-    switch (button) {
-      case CounterPageButton.add:
-        _counterBehaviorSubject.value += 1;
-        _counterValueSubject.value += 1;
-        break;
-      case CounterPageButton.reset:
-        _counterBehaviorSubject.value = 0;
-        _counterValueSubject.value = 0;
-        break;
-    }
-  }
-
-  void dispose() {
-    _buttonPressController.close();
-    _counterBehaviorSubject.close();
-    _counterValueSubject.close();
-  }
-}
-
-class BlocProvider extends InheritedWidget {
-  final Bloc bloc;
-
-  const BlocProvider({this.bloc, Key key, Widget child})
-      : super(key: key, child: child);
-
-  @override
-  bool updateShouldNotify(InheritedWidget oldWidget) {
-    // TODO: implement updateShouldNotify
-    return false;
-  }
-
-  static Bloc of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(BlocProvider) as BlocProvider)
-        ?.bloc;
   }
 }
 
@@ -89,14 +36,6 @@ class MyAppState extends State<MyApp> {
       child: new MaterialApp(
         title: 'Flutter Demo',
         theme: new ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-          // counter didn't reset back to zero; the application is not restarted.
           primarySwatch: Colors.blue,
         ),
         home: new MyHomePage(
@@ -161,7 +100,7 @@ class MyHomePage extends StatelessWidget {
         onPressed: () => bloc.buttonPress.add(CounterPageButton.add),
         tooltip: 'Increment',
         child: new Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
